@@ -40,6 +40,9 @@ public class ProformaCalculatorService {
     }
 
     public double calculateSocialSailFund(int GT) {
+        if (GT * tariffs.getSocialSailFund() >= 300) {
+            return BigDecimal.valueOf(300 / exchangeRate.getRatePLNEUR()).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        }
         return BigDecimal.valueOf(tariffs.getSocialSailFund() * GT / exchangeRate.getRatePLNEUR()).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 
@@ -50,7 +53,7 @@ public class ProformaCalculatorService {
                 return towageAndMooringTariff.getTowageMooringDues()[i][2];
             }
         }
-        throw new NoSuchElementException("No element in Towage tariff found");
+        throw new NoSuchElementException("No element in Towage tariff found, pls check vessels dtls");
     }
 
     public int checkNumberOfTugs(double loa) {
@@ -99,13 +102,16 @@ public class ProformaCalculatorService {
 
     public double calculatePilotsDues(double loa, double beam, double MSD) {
         if (loa > 200) {
-            return 2 * checkPilotDues(loa, beam, MSD) * 1.25;
+            return BigDecimal.valueOf(2 * checkPilotDues(loa, beam, MSD) * 1.25).setScale(2, RoundingMode.HALF_UP).doubleValue();
         }
-        return 2 * checkPilotDues(loa, beam, MSD);
+        return BigDecimal.valueOf(2 * checkPilotDues(loa, beam, MSD)).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 
     public double calculateIspsDues(int GT) {
-        return GT * tariffs.getIspsFee();
+        if (GT * tariffs.getIspsFee() >= 3000) {
+            return 3000;
+        }
+        return BigDecimal.valueOf(GT * tariffs.getIspsFee()).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 
     public double calculateTotalCost(double loa, double beam, double MSD, int DWT, int Gtred, int GT) {
