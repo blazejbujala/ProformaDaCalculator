@@ -115,6 +115,12 @@ class ProformaCalculatorServiceTest {
     }
 
     @Test
+    void checkPilotDuesForBigVessel() {
+        double result = proformaCalculatorService.checkPilotDues(bigVessel.getLoa(), bigVessel.getBeam(), bigVessel.getMSD());
+        Assertions.assertEquals(3147, result);
+    }
+
+    @Test
     void shouldCalculatePilotsDues() {
         double result = proformaCalculatorService.calculatePilotsDues(vessel.getLoa(), vessel.getBeam(), vessel.getMSD());
         Assertions.assertEquals(948, result);
