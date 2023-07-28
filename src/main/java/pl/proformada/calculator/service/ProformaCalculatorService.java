@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.proformada.calculator.webService.ExchangeRateService;
 import pl.proformada.calculator.model.ExchangeRate;
 import pl.proformada.calculator.model.PilotTariff;
 import pl.proformada.calculator.model.ProformaDa;
@@ -16,8 +17,9 @@ import pl.proformada.calculator.model.Vessel;
 @Service
 public class ProformaCalculatorService {
 
+    private final ExchangeRateService exchangeRateService = new ExchangeRateService();
     private Tariffs tariffs = new Tariffs();
-    private ExchangeRate exchangeRate = new ExchangeRate();
+    private ExchangeRate exchangeRate = exchangeRateService.getExchangeRateEur("eur");
     private TowageAndMooringTariff towageAndMooringTariff = new TowageAndMooringTariff();
     private PilotTariff pilotTariff = new PilotTariff();
 
@@ -29,21 +31,33 @@ public class ProformaCalculatorService {
 
     public double calculateTonnageFee(int DWT, int GTred) {
         if (DWT <= 38000) {
-            return BigDecimal.valueOf(tariffs.getTonnageFee() * GTred / exchangeRate.getRatePLNEUR()).setScale(2, RoundingMode.HALF_UP).doubleValue();
+            return BigDecimal.valueOf(tariffs.getTonnageFee()
+                    * GTred
+                    / exchangeRate.getRatePLNEUR())
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .doubleValue();
         }
         return BigDecimal.valueOf(tariffs.getTonnageFeeForVesselsDWTAbove38k() * GTred / exchangeRate.getRatePLNEUR())
             .setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 
     public double calculateQuayFee(int GTred) {
-        return BigDecimal.valueOf(tariffs.getQuayFee() * GTred / exchangeRate.getRatePLNEUR()).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        return BigDecimal.valueOf(tariffs.getQuayFee()
+                * GTred
+                / exchangeRate.getRatePLNEUR())
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 
     public double calculateSocialSailFund(int GT) {
         if (GT * tariffs.getSocialSailFund() >= 300) {
-            return BigDecimal.valueOf(300 / exchangeRate.getRatePLNEUR()).setScale(2, RoundingMode.HALF_UP).doubleValue();
+            return BigDecimal.valueOf(300 / exchangeRate.getRatePLNEUR())
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .doubleValue();
         }
-        return BigDecimal.valueOf(tariffs.getSocialSailFund() * GT / exchangeRate.getRatePLNEUR()).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        return BigDecimal.valueOf(tariffs.getSocialSailFund() * GT / exchangeRate.getRatePLNEUR())
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 
     public double checkTowageDues(double loa, double beam, double MSD) {
@@ -72,13 +86,18 @@ public class ProformaCalculatorService {
     }
 
     public double calculateTotalTowageDues(double loa, double beam, double MSD) {
-        return 2 * (checkNumberOfTugs(loa) * checkTowageDues(loa, beam, MSD) * (1 + tariffs.getBaf()) + calculateTowingRopeCost(loa));
+        return 2 * (checkNumberOfTugs(loa)
+                * checkTowageDues(loa, beam, MSD)
+                * (1 + tariffs.getBaf())
+                + calculateTowingRopeCost(loa));
     }
 
     public double checkMooringDues(double loa, double beam, double MSD) {
         double vol = calculateVesselVolumen(loa, beam, MSD);
         for (int i = 0; i < towageAndMooringTariff.getTowageMooringDues().length; i++) {
-            if (vol > towageAndMooringTariff.getTowageMooringDues()[i][0] && vol < towageAndMooringTariff.getTowageMooringDues()[i][1]) {
+            if (vol >= towageAndMooringTariff.getTowageMooringDues()[i][0]
+                    && vol <= towageAndMooringTariff.getTowageMooringDues()[i][1])
+            {
                 return towageAndMooringTariff.getTowageMooringDues()[i][3];
             }
         }
@@ -92,7 +111,7 @@ public class ProformaCalculatorService {
     public int checkPilotDues(double loa, double beam, double MSD) {
         double vol = calculateVesselVolumen(loa, beam, MSD);
         for (int i = 0; i < pilotTariff.getPilotDues().length; i++) {
-            if (vol > pilotTariff.getPilotDues()[i][0] && vol < pilotTariff.getPilotDues()[i][1]) {
+            if (vol >= pilotTariff.getPilotDues()[i][0] && vol <= pilotTariff.getPilotDues()[i][1]) {
                 return pilotTariff.getPilotDues()[i][2];
             }
         }

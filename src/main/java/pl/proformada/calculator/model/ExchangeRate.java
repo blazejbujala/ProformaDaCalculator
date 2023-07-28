@@ -1,13 +1,18 @@
 package pl.proformada.calculator.model;
 
+import lombok.Getter;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 @Component
+@Getter
 public class ExchangeRate {
 
-    private double ratePLNEUR = 4.50;
+    private Rate[] rates;
 
-    public double getRatePLNEUR() {
-        return ratePLNEUR;
+    public double getRatePLNEUR(){
+        return Arrays.stream(rates).findFirst().get().getMid();
     }
+
 }

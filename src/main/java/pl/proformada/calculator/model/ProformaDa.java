@@ -1,10 +1,12 @@
 package pl.proformada.calculator.model;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @RequiredArgsConstructor
 @Data
+@Getter
+@Setter
+@Builder
 public class ProformaDa {
 
     private double tonnageFee;
@@ -15,38 +17,6 @@ public class ProformaDa {
     private double pilotDues;
     private double ispsDues;
     private double totalCost;
-
-    public void setTonnageFee(double tonnageFee) {
-        this.tonnageFee = tonnageFee;
-    }
-
-    public void setQuayFee(double quayFee) {
-        this.quayFee = quayFee;
-    }
-
-    public void setSocialSailFund(double socialSailFund) {
-        this.socialSailFund = socialSailFund;
-    }
-
-    public void setTowageDues(double towageDues) {
-        this.towageDues = towageDues;
-    }
-
-    public void setTotalMooring(double totalMooring) {
-        this.totalMooring = totalMooring;
-    }
-
-    public void setPilotDues(double pilotDues) {
-        this.pilotDues = pilotDues;
-    }
-
-    public void setIspsDues(double ispsDues) {
-        this.ispsDues = ispsDues;
-    }
-
-    public void setTotalCost(double totalCost) {
-        this.totalCost = totalCost;
-    }
 
     public static class Builder {
         private double tonnageFee;
